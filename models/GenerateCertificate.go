@@ -7,16 +7,16 @@ import (
 	"go-CA/internal"
 )
 
-func GenerateCertificate(csr []byte) (x509.Certificate, error) {
+func GenerateCertificate(csr []byte) ([]byte, error) {
 
 	csrRequest, err := x509.ParseCertificateRequest(csr)
 	if err != nil {
-		return x509.Certificate{}, err
+		return nil, err
 	}
 
 	privKey, caCert, err := internal.GetKeyCertCA()
 	if err != nil {
-		return x509.Certificate{}, err
+		return nil, err
 	}
 	csrTemplate := x509.Certificate{
 		PublicKeyAlgorithm: csrRequest.PublicKeyAlgorithm,
@@ -34,13 +34,8 @@ func GenerateCertificate(csr []byte) (x509.Certificate, error) {
 	certBytes, err := x509.CreateCertificate(rand.Reader, &csrTemplate, caCert, csrRequest.PublicKey, privKey)
 	if err != nil {
 		fmt.Println("Error: ", err)
-		return x509.Certificate{}, err
+		return nil, err
 	}
 
-	cert, err := x509.ParseCertificate(certBytes)
-	if err != nil {
-		return x509.Certificate{}, err
-	}
-
-	return *cert, nil
+	return certBytes, nil
 }
