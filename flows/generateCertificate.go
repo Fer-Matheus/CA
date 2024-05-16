@@ -1,10 +1,11 @@
-package models
+package flows
 
 import (
 	"crypto/rand"
 	"crypto/x509"
 	"fmt"
 	"go-CA/internal"
+	"time"
 )
 
 func GenerateCertificate(csr []byte) ([]byte, error) {
@@ -18,17 +19,20 @@ func GenerateCertificate(csr []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	currentDate := time.Now()
+
 	csrTemplate := x509.Certificate{
 		PublicKeyAlgorithm: csrRequest.PublicKeyAlgorithm,
 		PublicKey:          csrRequest.PublicKey,
 
 		EmailAddresses: caCert.EmailAddresses,
-		SerialNumber: caCert.SerialNumber,
-		Subject:      csrRequest.Subject,
-		NotBefore:    caCert.NotBefore.Local(),
-		NotAfter:     caCert.NotAfter,
-		KeyUsage:     x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+		SerialNumber:   caCert.SerialNumber,
+		Subject:        csrRequest.Subject,
+		NotBefore:      currentDate,
+		NotAfter:       currentDate.AddDate(1, 0, 0),
+		KeyUsage:       x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:    []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 	}
 
 	certBytes, err := x509.CreateCertificate(rand.Reader, &csrTemplate, caCert, csrRequest.PublicKey, privKey)
