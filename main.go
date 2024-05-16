@@ -8,16 +8,13 @@ import (
 )
 
 func main() {
-	handler := http.NewServeMux()
-	server := handlers.Server
+	
+	http.HandleFunc("/csrRequest", handlers.CertificateRequest)
+	http.HandleFunc("/crtVerification", handlers.CertificateVerification)
+	
+	fmt.Println("Api on port :2302")
 
-	server.Handler = handler
-
-	handlers.Setup(handler)
-	fmt.Println("Api on port ", server.Addr)
-
-	if err := server.ListenAndServe(); err != nil {
+	if err := http.ListenAndServe(":2302", nil); err != nil {
 		log.Fatalf("error listening to port: %v", err)
 	}
-
 }
